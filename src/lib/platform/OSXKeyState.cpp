@@ -2,11 +2,11 @@
  * synergy -- mouse and keyboard sharing utility
  * Copyright (C) 2012 Synergy Si Ltd.
  * Copyright (C) 2004 Chris Schoeneman
- * 
+ *
  * This package is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * found in the file LICENSE that should have accompanied this file.
- * 
+ *
  * This package is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -45,6 +45,11 @@ static const UInt32 s_superVK    = 55;
 static const UInt32 s_capsLockVK = 57;
 static const UInt32 s_numLockVK  = 71;
 #endif
+
+// for JIS Keybaord
+static const UInt32 s_kanaVK = 104;
+static const UInt32 s_eisuVK = 102;
+static const UInt32 s_yenVK = 93;
 
 static const UInt32 s_osxNumLock = 1 << 16;
 
@@ -170,6 +175,12 @@ static const KeyEntry	s_controlKeys[] = {
 	{ kKeyMeta_L,		s_superVK },
 	{ kKeyMeta_R,		s_superVK }, // 61
 
+	// for JIS Keyboard
+	{ kKeyHenkan,		s_kanaVK },
+	//{ kKeyHiraganaKatakana,		s_kanaVK },
+	{ kKeyZenkaku,		s_eisuVK },
+	{ 0x005c,		s_yenVK},
+
 	// toggle modifiers
 	{ kKeyNumLock,		s_numLockVK },
 	{ kKeyCapsLock,		s_capsLockVK }
@@ -209,7 +220,7 @@ OSXKeyState::init()
 	// build virtual key map
 	for (size_t i = 0; i < sizeof(s_controlKeys) / sizeof(s_controlKeys[0]);
 		++i) {
-		
+
 		m_virtualKeyMap[s_controlKeys[i].m_virtualKey] =
 			s_controlKeys[i].m_keyID;
 	}
@@ -264,11 +275,11 @@ OSXKeyState::mapModifiersToCarbon(UInt32 mask) const
 	if ((mask & kCGEventFlagMaskNumericPad) != 0) {
 		outMask |= s_osxNumLock;
 	}
-	
+
 	return outMask;
 }
 
-KeyButton 
+KeyButton
 OSXKeyState::mapKeyFromEvent(KeyIDs& ids,
 				KeyModifierMask* maskOut, CGEventRef event) const
 {
@@ -305,7 +316,7 @@ OSXKeyState::mapKeyFromEvent(KeyIDs& ids,
 	// get keyboard info
 
 #if defined(MAC_OS_X_VERSION_10_5)
-	TISInputSourceRef currentKeyboardLayout = TISCopyCurrentKeyboardLayoutInputSource(); 
+	TISInputSourceRef currentKeyboardLayout = TISCopyCurrentKeyboardLayoutInputSource();
 #else
 	KeyboardLayoutRef currentKeyboardLayout;
 	OSStatus status = KLGetCurrentKeyboardLayout(&currentKeyboardLayout);
@@ -394,27 +405,27 @@ CGEventFlags
 OSXKeyState::getModifierStateAsOSXFlags()
 {
     CGEventFlags modifiers = 0;
-    
+
     if (m_shiftPressed) {
         modifiers |= kCGEventFlagMaskShift;
     }
-    
+
     if (m_controlPressed) {
         modifiers |= kCGEventFlagMaskControl;
     }
-    
+
     if (m_altPressed) {
         modifiers |= kCGEventFlagMaskAlternate;
     }
-    
+
     if (m_superPressed) {
         modifiers |= kCGEventFlagMaskCommand;
     }
-    
+
     if (m_capsPressed) {
         modifiers |= kCGEventFlagMaskAlphaShift;
     }
-    
+
     return modifiers;
 }
 
@@ -461,7 +472,7 @@ OSXKeyState::pollActiveGroup() const
 	OSStatus status = KLGetCurrentKeyboardLayout(&keyboardLayout);
 	layoutValid = (status == noErr);
 #endif
-	
+
 	if (layoutValid) {
 		GroupMap::const_iterator i = m_groupMap.find(keyboardLayout);
 		if (i != m_groupMap.end()) {
@@ -505,7 +516,7 @@ OSXKeyState::getKeyMap(synergy::KeyMap& keyMap)
 
 		const void* resource;
 		bool layoutValid = false;
-		
+
 		// add regular keys
 		// try uchr resource first
 		#if defined(MAC_OS_X_VERSION_10_5)
@@ -537,20 +548,20 @@ OSXKeyState::fakeKey(const Keystroke& keystroke)
 {
 	switch (keystroke.m_type) {
 	case Keystroke::kButton: {
-		
+
 		KeyButton button = keystroke.m_data.m_button.m_button;
 		bool keyDown = keystroke.m_data.m_button.m_press;
 		UInt32 client = keystroke.m_data.m_button.m_client;
 		CGEventSourceRef source = 0;
 		CGKeyCode virtualKey = mapKeyButtonToVirtualKey(button);
-		
+
 		LOG((CLOG_DEBUG1
 			"  button=0x%04x virtualKey=0x%04x keyDown=%s client=0x%04x",
 			button, virtualKey, keyDown ? "down" : "up", client));
 
 		CGEventRef ref = CGEventCreateKeyboardEvent(
 			source, virtualKey, keyDown);
-		
+
 		if (ref == NULL) {
 			LOG((CLOG_CRIT "unable to create keyboard event for keystroke"));
 			return;
@@ -560,19 +571,19 @@ OSXKeyState::fakeKey(const Keystroke& keystroke)
 		if (virtualKey == s_shiftVK) {
 			m_shiftPressed = keyDown;
 		}
-		
+
 		if (virtualKey == s_controlVK) {
 			m_controlPressed = keyDown;
 		}
-		
+
 		if (virtualKey == s_altVK) {
 			m_altPressed = keyDown;
 		}
-		
+
 		if (virtualKey == s_superVK) {
 			m_superPressed = keyDown;
 		}
-		
+
 		if (virtualKey == s_capsLockVK) {
 			m_capsPressed = keyDown;
 		}
@@ -580,27 +591,27 @@ OSXKeyState::fakeKey(const Keystroke& keystroke)
 		// set the event flags for special keys
 		// http://tinyurl.com/pxl742y
 		CGEventFlags modifiers = 0;
-		
+
 		if (m_shiftPressed) {
 			modifiers |= kCGEventFlagMaskShift;
 		}
-		
+
 		if (m_controlPressed) {
 			modifiers |= kCGEventFlagMaskControl;
 		}
-		
+
 		if (m_altPressed) {
 			modifiers |= kCGEventFlagMaskAlternate;
 		}
-		
+
 		if (m_superPressed) {
 			modifiers |= kCGEventFlagMaskCommand;
 		}
-		
+
 		if (m_capsPressed) {
 			modifiers |= kCGEventFlagMaskAlphaShift;
 		}
-		
+
 		CGEventSetFlags(ref, modifiers);
 		CGEventPost(kCGHIDEventTap, ref);
 		CFRelease(ref);
@@ -787,7 +798,7 @@ OSXKeyState::mapSynergyHotKeyToMac(KeyID key, KeyModifierMask mask,
 		return false;
 	}
 	macVirtualKey = mapKeyButtonToVirtualKey(button);
-	
+
 	// calculate modifier mask
 	macModifierMask = 0;
 	if ((mask & KeyModifierShift) != 0) {
@@ -808,10 +819,10 @@ OSXKeyState::mapSynergyHotKeyToMac(KeyID key, KeyModifierMask mask,
 	if ((mask & KeyModifierNumLock) != 0) {
 		macModifierMask |= s_osxNumLock;
 	}
-	
+
 	return true;
 }
-						
+
 void
 OSXKeyState::handleModifierKeys(void* target,
 				KeyModifierMask oldMask, KeyModifierMask newMask)
@@ -885,7 +896,7 @@ OSXKeyState::getGroups(GroupList& groups) const
 	for (CFIndex i = 0; i < n; ++i) {
 		bool addToGroups = true;
 #if defined(MAC_OS_X_VERSION_10_5)
-		TISInputSourceRef keyboardLayout = 
+		TISInputSourceRef keyboardLayout =
 			(TISInputSourceRef)CFArrayGetValueAtIndex(kbds, i);
 #else
 		KeyboardLayoutRef keyboardLayout;
@@ -1067,7 +1078,7 @@ OSXKeyState::KeyResource::getKeyID(UInt8 c)
 		// encoding with char value 214).  if it did then make no key,
 		// otherwise CFStringCreateMutableCopy() will crash.
 		if (cfString == NULL) {
-			return kKeyNone; 
+			return kKeyNone;
 		}
 
 		// convert to precomposed
