@@ -565,7 +565,7 @@ class InternalCommands:
 			return sdkPath
 
 		# return os.popen('xcodebuild -version -sdk macosx' + self.macSdk + ' Path').read().strip()
-		return "/Developer/SDKs/" + sdkDirName + ".sdk"
+		return "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/" + sdkDirName + ".sdk"
 	
 	# http://tinyurl.com/cs2rxxb
 	def fixCmakeEclipseBug(self):
@@ -779,7 +779,7 @@ class InternalCommands:
 				frameworkRootDir = "/Library/Frameworks"
 			else:
 				# TODO: auto-detect, qt can now be installed anywhere.
-				frameworkRootDir = "/Developer/Qt5.2.1/5.2.1/clang_64/lib"
+				frameworkRootDir = "/usr/local/Cellar/qt@5.5/5.5.1_1/Frameworks"
 
 			target = bundleTargetDir + "/Contents/Frameworks"
 
