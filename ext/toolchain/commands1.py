@@ -429,8 +429,8 @@ class InternalCommands:
 		# for makefiles always specify a build type (debug, release, etc)
 		if generator.cmakeName.find('Unix Makefiles') != -1:
 			cmake_args += ' -DCMAKE_BUILD_TYPE=' + target.capitalize()
-			
-		elif sys.platform == "darwin":
+
+		if sys.platform == "darwin":
 			macSdkMatch = re.match("(\d+)\.(\d+)", self.macSdk)
 			if not macSdkMatch:
 				raise Exception("unknown osx version: " + self.macSdk)
@@ -763,7 +763,7 @@ class InternalCommands:
 				frameworkRootDir = "/Developer/Qt5.2.1/5.2.1/clang_64/lib"
 
 			target = bundleTargetDir + "/Contents/Frameworks"
-
+			frameworkRootDir = "/usr/local/Cellar/qt/4.8.6/Frameworks"
 			# copy the missing Info.plist files for the frameworks.
 			for root, dirs, files in os.walk(target):
 				for dir in dirs:
