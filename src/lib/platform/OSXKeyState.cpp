@@ -122,6 +122,7 @@ static const KeyEntry    s_controlKeys[] = {
 
     // for JIS Keyboard
     { kKeyHenkan,		s_kanaVK },
+    { kKeyMuhenkan,		s_eisuVK },
     //{ kKeyHiraganaKatakana,		s_kanaVK },
     { kKeyZenkaku,		s_eisuVK },
     { 0x005c,		s_yenVK},
