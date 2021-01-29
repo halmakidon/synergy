@@ -112,7 +112,6 @@ static const KeyID		kKeyEscape		= 0xEF1B;
 static const KeyID		kKeyMuhenkan    = 0xEF22;	/* Cancel Conversion */
 static const KeyID		kKeyHenkan		= 0xEF23;	/* Start/Stop Conversion */
 static const KeyID		kKeyKana		= 0xEF26;	/* Kana */
-static const KeyID		kKeyHiraganaKatakana = 0xEF27;	/* Hiragana/Katakana toggle */
 static const KeyID		kKeyZenkaku		= 0xEF2A;	/* Zenkaku/Hankaku */
 static const KeyID		kKeyKanzi		= 0xEF2A;	/* Kanzi */
 static const KeyID		kKeyHangul		= 0xEF31;	/* Hangul */

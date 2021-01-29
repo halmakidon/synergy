@@ -282,7 +282,7 @@ const KeyID				MSWindowsKeyState::s_virtualKey[] =
 	/* 0x0ef */ { kKeyNone },		// OEM specific
 	/* 0x0f0 */ { kKeyNone },		// OEM specific
 	/* 0x0f1 */ { kKeyNone },		// OEM specific
-	/* 0x0f2 */ { kKeyHiraganaKatakana },	// VK_OEM_COPY
+	/* 0x0f2 */ { kKeyNone },	    // VK_OEM_COPY
 	/* 0x0f3 */ { kKeyZenkaku },	// VK_OEM_AUTO
 	/* 0x0f4 */ { kKeyZenkaku },	// VK_OEM_ENLW
 	/* 0x0f5 */ { kKeyNone },		// OEM specific
